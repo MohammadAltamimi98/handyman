@@ -1,0 +1,20 @@
+{
+  "name": "handyman",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MohammadAltamimi98/handyman.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MohammadAltamimi98/handyman/issues"
+  },
+  "homepage": "https://github.com/MohammadAltamimi98/handyman#readme"
+}
