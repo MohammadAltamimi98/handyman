@@ -9,9 +9,10 @@ const server = http.createServer(app);
 const io = require('socket.io')(http);
 const adminsRoom = 'admins'; // this room have all the admins
 const { v4: uuidv4 } = require('uuid');
-
+const loginRoute = require('./src/routes/user');
+const ticketRoute = require('./src/routes/ticket');
 app.use(cors());
-
+app.use(express.json());
 io.listen(server); // io listening to the server
 
 
@@ -19,8 +20,8 @@ app.get('/', (req, res) => {
   res.send('The backend of the Handyman application.')
 }); // testing route 
 
-
-
+app.use(loginRoute);
+app.use(ticketRoute);
 
 io.on('connection', (socket) => {
   console.log('client is connected', socket.id);
