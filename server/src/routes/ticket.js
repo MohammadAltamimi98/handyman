@@ -44,12 +44,23 @@ async function getUserTickets(req, res, next) {
     }
 }
 async function createNewTicket(req, res, next) {
-    const tokenstr = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NywidXNlcm5hbWUiOiJyYW1haGkiLCJhZG1pbiI6dHJ1ZSwiaWF0IjoxNjI2MzI4NTYyfQ.zUOMXWpYRYCUm_FeGaJ-A8ZgmE52eJpBzcE70y-ob20";
-    const token = jwt.verify(tokenstr, secret);
-    const { name, description } = req.body;
-    ticket = new ticketModel(token.id);
-    const newTicket = await ticket.create({ name, description });
-    res.json(newTicket.rows[0]);
-    console.log(newTicket.rows[0]);
+    try {
+        const token = req.headers.authorization.split(" ").pop();
+        const validToken = jwt.verify(token, secret);
+        if (validToken) {
+
+            const { name, description } = req.body;
+            ticket = new ticketModel(token.id);
+            const newTicket = await ticket.create({ name, description });
+            res.json(newTicket.rows[0]);
+            console.log(newTicket.rows[0]);
+        }
+        else {
+            throw new Error("You Don't have permission!");
+        }
+    }
+    catch (err) {
+        res.json({ msg: err.message })
+    }
 }
 module.exports = router;
