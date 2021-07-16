@@ -62,14 +62,14 @@ io.on('connection', (socket) => {
     });
   })
 
+
   socket.on('disconnect', () => {
     socket.to(adminsRoom).emit('offlineAdmins', { id: socket.id });
   });
 });
 
 
+
 server.listen(PORT, () => {
   console.log(`server is listening on port ${PORT}`);
 });
-
-
