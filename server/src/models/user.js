@@ -9,9 +9,9 @@ class User {
             return pool.query(`SELECT * FROM users WHERE name=$1`, [username]);
         }
     }
-    create({ username, password, role }) {
+    create({ username, password, admin }) {
         const query = `INSERT INTO users(name, password,admin) VALUES($1,$2,$3) RETURNING *`;
-        const values = [username, password, role];
+        const values = [username, password, admin];
         return pool.query(query, values);
     }
 }

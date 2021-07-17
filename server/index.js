@@ -12,6 +12,7 @@ const io = require('socket.io')(http);
 const adminsRoom = 'admins'; // this room have all the admins
 const { v4: uuidv4 } = require('uuid');
 
+app.use(express.json());
 app.use(cors());
 app.use(user);
 app.use(ticketsRoute)
@@ -36,10 +37,16 @@ io.on('connection', (socket) => {
 
 
   socket.on('join', (payload) => {
-    const admins = { name: payload.name, id: socket.id }
+    console.log(payload);
+    const admins = { name: payload.adminName, id: socket.id }
+
     queue.admins.push(admins);
+
+    console.log(admins, "payload");
     socket.join(adminsRoom);
     socket.to(adminsRoom).emit('onlineAdmins', admins)
+
+    console.log(queue.admins);
   });
 
 
@@ -52,12 +59,14 @@ io.on('connection', (socket) => {
 
   // notify the client when the admin claims the ticket
   socket.on('claim', (payload) => {
+    console.log(payload);
     socket.to(payload.clientId).emit('claimed', { name: payload.name });// which admin claimed your ticket
     queue.tickets = queue.tickets.filter((ticket) => ticket.id !== payload.id);
   });
 
   socket.on('getAll', () => {
     queue.admins.forEach((human) => {
+      console.log(human);
       socket.emit('onlineAdmins', { name: human.name, id: human.id });
     });
     queue.tickets.forEach((tick) => {
@@ -68,6 +77,7 @@ io.on('connection', (socket) => {
 
   socket.on('disconnect', () => {
     socket.to(adminsRoom).emit('offlineAdmins', { id: socket.id });
+    queue.admins = queue.admins.filter((s) => s.id !== socket.id);
   });
 });
 
