@@ -4,7 +4,7 @@ require('dotenv').config();
 const userModel = require('../models/user');
 const basic = require('../middleware/basic');
 const secret = process.env.SECRET;
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 router.post("/login", basic, loginHandler)
 router.post("/signup", signUpHandler);
