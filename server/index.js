@@ -5,13 +5,16 @@ const app = express();
 const http = require('http');
 const PORT = process.env.PORT || 5000;
 const cors = require('cors');
+const user = require('./src/routes/user');
+const ticketsRoute = require('./src/routes/ticket');
 const server = http.createServer(app);
 const io = require('socket.io')(http);
 const adminsRoom = 'admins'; // this room have all the admins
 const { v4: uuidv4 } = require('uuid');
 
 app.use(cors());
-
+app.use(user);
+app.use(ticketsRoute)
 io.listen(server); // io listening to the server
 
 const queue = {
