@@ -39,10 +39,14 @@ io.on('connection', (socket) => {
   socket.on('join', (payload) => {
     console.log(payload);
     const admins = { name: payload.adminName, id: socket.id }
+
     queue.admins.push(admins);
+
     console.log(admins, "payload");
     socket.join(adminsRoom);
     socket.to(adminsRoom).emit('onlineAdmins', admins)
+
+    console.log(queue.admins);
   });
 
 
@@ -72,6 +76,7 @@ io.on('connection', (socket) => {
 
   socket.on('disconnect', () => {
     socket.to(adminsRoom).emit('offlineAdmins', { id: socket.id });
+    queue.admins = queue.admins.filter((s) => s.id !== socket.id);
   });
 });
 
