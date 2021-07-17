@@ -1,3 +1,5 @@
+DROP TABLE public.users IF EXISTS;
+
 CREATE TABLE public.users (
 	id serial NOT NULL,
 	"name" varchar(255) NOT NULL,
