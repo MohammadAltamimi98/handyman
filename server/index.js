@@ -24,7 +24,7 @@ app.use(loginRoute);
 app.use(ticketRoute);
 
 io.on('connection', (socket) => {
-  console.log('client is connected', socket.id);
+  console.log('client is connected', socket.id, socket.name);
 
 
 
