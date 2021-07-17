@@ -5,52 +5,70 @@ const app = express();
 const http = require('http');
 const PORT = process.env.PORT || 5000;
 const cors = require('cors');
+const user = require('./src/routes/user');
+const ticketsRoute = require('./src/routes/ticket');
 const server = http.createServer(app);
 const io = require('socket.io')(http);
 const adminsRoom = 'admins'; // this room have all the admins
 const { v4: uuidv4 } = require('uuid');
-const loginRoute = require('./src/routes/user');
-const ticketRoute = require('./src/routes/ticket');
-const morgan = require('morgan');
+
 app.use(cors());
-app.use(express.json());
+app.use(user);
+app.use(ticketsRoute)
 io.listen(server); // io listening to the server
-app.use(morgan('combined'));
+
+const queue = {
+  tickets: [],
+  admins: []
+};
+
+
+
 app.get('/', (req, res) => {
   res.send('The backend of the Handyman application.')
 }); // testing route 
 
-app.use(loginRoute);
-app.use(ticketRoute);
+
+
 
 io.on('connection', (socket) => {
-  console.log('client is connected', socket.id, socket.name);
-
-
+  console.log('client is connected', socket.id);
 
 
   socket.on('join', (payload) => {
+    const admins = { name: payload.name, id: socket.id }
+    queue.admins.push(admins);
     socket.join(adminsRoom);
-    socket.to(adminsRoom).emit('onlineAdmins', { name: payload.name, id: socket.id })
+    socket.to(adminsRoom).emit('onlineAdmins', admins)
   });
 
+
   socket.on('createTicket', (payload) => {
-    socket.in(adminsRoom).emit('newTicket', { ...payload, id: uuidv4(), socketId: socket.id })
+    const ticketDetails = { ...payload, id: uuidv4(), socketId: socket.id };
+    queue.tickets.push(ticketDetails);
+    socket.in(adminsRoom).emit('newTicket', ticketDetails);
     console.log(payload);
   });
 
-  // notify the customer when the admin claims the ticket
-  socket.on('claim', payload => {
-    socket.to(payload.customerId).emit('claimed', { name: payload.name }) // which admin claimed your ticket
+  // notify the client when the admin claims the ticket
+  socket.on('claim', (payload) => {
+    socket.to(payload.clientId).emit('claimed', { name: payload.name });// which admin claimed your ticket
+    queue.tickets = queue.tickets.filter((ticket) => ticket.id !== payload.id);
+  });
+
+  socket.on('getAll', () => {
+    queue.admins.forEach((human) => {
+      socket.emit('onlineAdmins', { name: human.name, id: human.id });
+    });
+    queue.tickets.forEach((tick) => {
+      socket.emit('newTicket', tick)
+    });
   })
-
-
 
   socket.on('disconnect', () => {
     socket.to(adminsRoom).emit('offlineAdmins', { id: socket.id });
   });
 });
-
 
 
 server.listen(PORT, () => {
