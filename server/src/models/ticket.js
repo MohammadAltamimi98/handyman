@@ -9,14 +9,21 @@ class Ticket {
         }
         return pool.query(`SELECT * FROM tickets`);
     }
-    create({ name, description }) {
+    create({ adminName, description, type, service }) {
         if (this.userId) {
-            const query = `INSERT INTO tickets(userid,name, description) VALUES($1,$2,$3) RETURNING *`;
-            const values = [this.userId, name, description];
+            const query = `INSERT INTO tickets(adminname,userid,description,type,service ) VALUES($1,$2,$3,$4,$5) RETURNING *`;
+            const values = [adminName, this.userId, description, type, service];
             console.log(pool.query(query, values));
             return pool.query(query, values);
         }
 
+    }
+    update(adminName, id) {
+        if (adminName) {
+            const query = `UPDATE tickets SET adminname=$1 where id=$2  RETURNING *`;
+            const values = [adminName, id];
+            return pool.query(query, values);
+        }
     }
     delete(id) {
         const query = `DELETE FROM tickets WHERE id=$1 and userid=(select id from users where id=$2 ) RETURNING *`;
