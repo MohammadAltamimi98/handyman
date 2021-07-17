@@ -12,15 +12,15 @@ class Ticket {
     create({ name, description }) {
         if (this.userId) {
             const query = `INSERT INTO tickets(userid,name, description) VALUES($1,$2,$3) RETURNING *`;
-            console.log(this.userId, description, name);
             const values = [this.userId, name, description];
+            console.log(pool.query(query, values));
             return pool.query(query, values);
         }
 
     }
     delete(id) {
-        const query = `DELETE FROM ${this.table} WHERE id=$1 RETURNING *`;
-        const values = [id];
+        const query = `DELETE FROM tickets WHERE id=$1 and userid=(select id from users where id=$2 ) RETURNING *`;
+        const values = [id, this.userId];
         return pool.query(query, values);
     }
 }
